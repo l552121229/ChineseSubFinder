@@ -30,7 +30,7 @@ func HotFixProcess(param types.HotFixParam) error {
 	for _, fix := range hotFixes {
 		hotFixRecord[fix.Key] = fix
 	}
-	// 交叉对比，这个执行的顺序又上面 []ifaces.IHotFix 指定
+	// 交叉对比，这个执行的顺序又上面 []interface.IHotFix 指定
 	for _, hotfixCase := range hotfixCases {
 		_, bFound := hotFixRecord[hotfixCase.GetKey()]
 		if bFound == false {

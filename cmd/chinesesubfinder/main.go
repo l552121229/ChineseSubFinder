@@ -42,6 +42,10 @@ func main() {
 		log.Errorln("SeriesFolder not found")
 		return
 	}
+	if pkg.IsDir(config.AnimeFolder) == false {
+		log.Errorln("AnimeFolder not found")
+		return
+	}
 	// ------ 数据库相关操作 Start ------
 	err := dao.InitDb()
 	if err != nil {
@@ -56,6 +60,7 @@ func main() {
 	err = hot_fix.HotFixProcess(types.HotFixParam{
 		MovieRootDir:  config.MovieFolder,
 		SeriesRootDir: config.SeriesFolder,
+		AnimeRootDir:  config.AnimeFolder,
 	})
 	if err != nil {
 		log.Errorln("HotFixProcess()", err)
@@ -70,6 +75,7 @@ func main() {
 
 	log.Infoln("MovieFolder:", config.MovieFolder)
 	log.Infoln("SeriesFolder:", config.SeriesFolder)
+	log.Infoln("AnimeFolder:", config.AnimeFolder)
 
 	// ReloadBrowser 提前把浏览器下载好
 	pkg.ReloadBrowser()
