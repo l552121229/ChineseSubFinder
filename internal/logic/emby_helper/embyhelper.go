@@ -31,11 +31,12 @@ func NewEmbyHelper(embyConfig emby.EmbyConfig) *EmbyHelper {
 	return &em
 }
 
-func (em *EmbyHelper) GetRecentlyAddVideoList(movieRootDir, seriesRootDir string) ([]emby.EmbyMixInfo, map[string][]emby.EmbyMixInfo, error) {
+func (em *EmbyHelper) GetRecentlyAddVideoList(movieRootDir, seriesRootDir string, animeRootDir string) ([]emby.EmbyMixInfo, map[string][]emby.EmbyMixInfo, error) {
 
 	// 获取电影和连续剧的文件夹名称
 	movieFolderName := filepath.Base(movieRootDir)
 	seriesFolderName := filepath.Base(seriesRootDir)
+	animeFolderName := filepath.Base(animeRootDir)
 
 	var EpisodeIdList = make([]string, 0)
 	var MovieIdList = make([]string, 0)
@@ -63,12 +64,20 @@ func (em *EmbyHelper) GetRecentlyAddVideoList(movieRootDir, seriesRootDir string
 	if err != nil {
 		return nil, nil, err
 	}
+	filterAnimeList, err := em.filterEmbyVideoList(animeFolderName, EpisodeIdList, false)
+	if err != nil {
+		return nil, nil, err
+	}
 	// 将没有字幕的找出来
 	noSubMovieList, err := em.filterNoChineseSubVideoList(filterMovieList)
 	if err != nil {
 		return nil, nil, err
 	}
 	noSubSeriesList, err := em.filterNoChineseSubVideoList(filterSeriesList)
+	if err != nil {
+		return nil, nil, err
+	}
+	noSubAnimeList, err := em.filterNoChineseSubVideoList(filterAnimeList)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -79,9 +88,20 @@ func (em *EmbyHelper) GetRecentlyAddVideoList(movieRootDir, seriesRootDir string
 	for i, info := range noSubSeriesList {
 		noSubSeriesList[i].VideoFileFullPath = path.Join(seriesRootDir, info.VideoFileRelativePath)
 	}
+	for i, info := range noSubAnimeList {
+		noSubAnimeList[i].VideoFileFullPath = path.Join(animeRootDir, info.VideoFileRelativePath)
+	}
 	// 需要将连续剧零散的每一集，进行合并到一个连续剧下面，也就是这个连续剧有那些需要更新的
 	var seriesMap = make(map[string][]emby.EmbyMixInfo)
 	for _, info := range noSubSeriesList {
+		_, ok := seriesMap[info.VideoFolderName]
+		if ok == false {
+			// 不存在则新建初始化
+			seriesMap[info.VideoFolderName] = make([]emby.EmbyMixInfo, 0)
+		}
+		seriesMap[info.VideoFolderName] = append(seriesMap[info.VideoFolderName], info)
+	}
+	for _, info := range noSubAnimeList {
 		_, ok := seriesMap[info.VideoFolderName]
 		if ok == false {
 			// 不存在则新建初始化

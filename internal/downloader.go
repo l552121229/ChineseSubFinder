@@ -78,13 +78,13 @@ func NewDownloader(_reqParam ...types.ReqParam) *Downloader {
 }
 
 // GetUpdateVideoListFromEmby 这里首先会进行近期影片的获取，然后对这些影片进行刷新，然后在获取字幕列表，最终得到需要字幕获取的 video 列表
-func (d *Downloader) GetUpdateVideoListFromEmby(movieRootDir, seriesRootDir string) error {
+func (d *Downloader) GetUpdateVideoListFromEmby(movieRootDir, seriesRootDir string, animeRootDir string) error {
 	if d.embyHelper == nil {
 		return nil
 	}
 	var err error
 	var movieList []emby.EmbyMixInfo
-	movieList, d.seriesSubNeedDlMap, err = d.embyHelper.GetRecentlyAddVideoList(movieRootDir, seriesRootDir)
+	movieList, d.seriesSubNeedDlMap, err = d.embyHelper.GetRecentlyAddVideoList(movieRootDir, seriesRootDir, animeRootDir)
 	if err != nil {
 		return err
 	}

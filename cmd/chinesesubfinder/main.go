@@ -130,7 +130,7 @@ func DownLoadStart(httpProxy string) {
 		log.Errorln("RefreshEmbySubList", err)
 		return
 	}
-	err = downloader.GetUpdateVideoListFromEmby(config.MovieFolder, config.SeriesFolder)
+	err = downloader.GetUpdateVideoListFromEmby(config.MovieFolder, config.SeriesFolder, config.AnimeFolder)
 	if err != nil {
 		log.Errorln("GetUpdateVideoListFromEmby", err)
 		return
