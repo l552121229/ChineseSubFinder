@@ -8,6 +8,7 @@ import (
 	"github.com/allanpk716/ChineseSubFinder/internal/types/emby"
 	"github.com/panjf2000/ants/v2"
 	"golang.org/x/net/context"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -86,10 +87,16 @@ func (em *EmbyHelper) GetRecentlyAddVideoList(movieRootDir, seriesRootDir string
 		noSubMovieList[i].VideoFileFullPath = path.Join(movieRootDir, info.VideoFileRelativePath)
 	}
 	for i, info := range noSubSeriesList {
-		noSubSeriesList[i].VideoFileFullPath = path.Join(seriesRootDir, info.VideoFileRelativePath)
+		tmpPath := path.Join(seriesRootDir, info.VideoFileRelativePath)
+		if pathExists(tmpPath) {
+			noSubSeriesList[i].VideoFileFullPath = tmpPath
+		}
 	}
 	for i, info := range noSubAnimeList {
-		noSubAnimeList[i].VideoFileFullPath = path.Join(animeRootDir, info.VideoFileRelativePath)
+		tmpPath := path.Join(animeRootDir, info.VideoFileRelativePath)
+		if pathExists(tmpPath) {
+			noSubAnimeList[i].VideoFileFullPath = tmpPath
+		}
 	}
 	// 需要将连续剧零散的每一集，进行合并到一个连续剧下面，也就是这个连续剧有那些需要更新的
 	var seriesMap = make(map[string][]emby.EmbyMixInfo)
@@ -111,6 +118,18 @@ func (em *EmbyHelper) GetRecentlyAddVideoList(movieRootDir, seriesRootDir string
 	}
 
 	return noSubMovieList, seriesMap, nil
+}
+
+// 判断所给路径文件/文件夹是否存在
+func pathExists(path string) bool {
+	_, err := os.Stat(path) //os.Stat获取文件信息
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
 }
 
 // RefreshEmbySubList 字幕下载完毕一次，就可以触发一次这个。并发 6 线程去刷新
