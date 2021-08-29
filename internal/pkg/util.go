@@ -2,12 +2,13 @@ package pkg
 
 import (
 	"fmt"
+	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/allanpk716/ChineseSubFinder/internal/common"
 	"github.com/allanpk716/ChineseSubFinder/internal/pkg/log_helper"
 	"github.com/allanpk716/ChineseSubFinder/internal/pkg/rod_helper"
 	"github.com/allanpk716/ChineseSubFinder/internal/types"
-	browser "github.com/allanpk716/fake-useragent"
 	"github.com/go-resty/resty/v2"
+	"github.com/go-rod/rod"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -309,7 +310,9 @@ func ReloadBrowser() {
 	if err != nil {
 		return
 	}
-	defer page.Close()
+	defer func(page *rod.Page) {
+		_ = page.Close()
+	}(page)
 }
 
 // CopyFile copies a single file from src to dst
@@ -322,12 +325,16 @@ func CopyFile(src, dst string) error {
 	if srcfd, err = os.Open(src); err != nil {
 		return err
 	}
-	defer srcfd.Close()
+	defer func(srcfd *os.File) {
+		_ = srcfd.Close()
+	}(srcfd)
 
 	if dstfd, err = os.Create(dst); err != nil {
 		return err
 	}
-	defer dstfd.Close()
+	defer func(dstfd *os.File) {
+		_ = dstfd.Close()
+	}(dstfd)
 
 	if _, err = io.Copy(dstfd, srcfd); err != nil {
 		return err

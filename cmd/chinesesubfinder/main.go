@@ -141,6 +141,14 @@ func DownLoadStart(httpProxy string) {
 		log.Errorln("DownloadSub4Series", err)
 		return
 	}
+	// 开始下载，动漫
+	log.Infoln("Download anime start...")
+	err = downloader.DownloadSub4Series(config.AnimeFolder)
+	if err != nil {
+		log.Errorln("DownloadSub4SeriesAnime", err)
+		return
+	}
+	log.Infoln("Download anime end...")
 	// 刷新 Emby 的字幕，下载完毕字幕了，就统一刷新一下
 	err = downloader.RefreshEmbySubList()
 	if err != nil {
